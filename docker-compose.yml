@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: workorder-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-workorder}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-workorder}
+      POSTGRES_DB: ${POSTGRES_DB:-workorder_db}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-workorder} -d ${POSTGRES_DB:-workorder_db}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: workorder-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${POSTGRES_USER:-workorder}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-workorder}
+      DB_NAME: ${POSTGRES_DB:-workorder_db}
+      JWT_SECRET: ${JWT_SECRET:-super-secret-change-me}
+      JWT_EXPIRES_IN: 1d
+      UPLOAD_DIR: uploads
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
+    command: sh -c "npm install && npm run migration:run && npm run seed && npm run dev"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: workorder-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+
+volumes:
+  postgres_data:

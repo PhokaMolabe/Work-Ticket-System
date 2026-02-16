@@ -1,0 +1,267 @@
+{
+  "info": {
+    "name": "WorkOrder System",
+    "_postman_id": "9f2eb2a3-0ca2-447f-bb8f-7f56d3334de0",
+    "description": "Core flows for Work Order / Ticket Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "ticketId",
+      "value": ""
+    },
+    {
+      "key": "evidenceId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@workorder.local\",\n  \"password\": \"Admin#12345\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tickets - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Printer Offline\",\n  \"description\": \"Floor 2 printer not reachable\",\n  \"priority\": \"HIGH\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tickets",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "tickets"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tickets - Queue",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tickets/queue?assigned=unassigned&page=1&pageSize=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "tickets",
+            "queue"
+          ],
+          "query": [
+            {
+              "key": "assigned",
+              "value": "unassigned"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "20"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tickets - Assign",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"assignedToUserId\": \"<AGENT_UUID>\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tickets/{{ticketId}}/assign",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "tickets",
+            "{{ticketId}}",
+            "assign"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tickets - Update Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tickets/{{ticketId}}/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "tickets",
+            "{{ticketId}}",
+            "status"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tickets - Add Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"body\": \"Investigating the incident\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "tickets",
+            "{{ticketId}}",
+            "comments"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Evidence - Download",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/evidence/{{evidenceId}}/download",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "evidence",
+            "{{evidenceId}}",
+            "download"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Audit Logs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/audit-logs?page=1&pageSize=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "audit-logs"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "20"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

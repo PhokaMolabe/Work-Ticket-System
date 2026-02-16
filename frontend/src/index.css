@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-start: #f2f7f6;
+  --bg-end: #dcebe7;
+  --card-bg: rgba(255, 255, 255, 0.88);
+  --text-main: #14352d;
+  --text-muted: #44655c;
+  --danger: #ba3f1d;
+  --safe: #1d7b4a;
+  --risk: #ac7a00;
+  --breach: #a12d2d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Space Grotesk', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(127, 201, 177, 0.35), transparent 35%),
+    radial-gradient(circle at 85% 10%, rgba(101, 174, 144, 0.25), transparent 30%),
+    linear-gradient(140deg, var(--bg-start), var(--bg-end));
+  color: var(--text-main);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+}

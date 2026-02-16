@@ -1,0 +1,9 @@
+node_modules
+*.log
+dist
+coverage
+.vscode
+.idea
+.env
+backend/uploads/*
+!backend/uploads/.gitkeep
