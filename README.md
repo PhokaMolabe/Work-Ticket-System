@@ -1,4 +1,4 @@
-# Cascade Work Order / Ticket Management System
+ Ticket Management System
 
 Production-style Work Order / Ticket Management System built from scratch as a monorepo:
 
