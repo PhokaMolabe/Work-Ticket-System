@@ -1,10 +1,8 @@
 <?php
 require_once 'config.php';
 
-// Simple router
 $route = $_GET['_route'] ?? 'home';
 
-// Route definitions
 $routes = [
     'home' => 'controllers/HomeController.php',
     'plan/list' => 'controllers/PlanController.php?action=list',
@@ -14,12 +12,11 @@ $routes = [
     'settings/users-edit-post' => 'controllers/UserController.php?action=edit_post',
 ];
 
-// Parse route
 $matched_route = null;
 $params = [];
 
 foreach ($routes as $pattern => $handler) {
-    // Convert {id} pattern to regex
+
     $regex_pattern = preg_replace('/\{id\}/', '(\d+)', $pattern);
     $regex_pattern = '/^' . str_replace('/', '\/', $regex_pattern) . '$/';
     
@@ -36,7 +33,6 @@ if (!$matched_route) {
     exit;
 }
 
-// Parse handler
 if (strpos($matched_route, '?') !== false) {
     list($controller_file, $query_string) = explode('?', $matched_route, 2);
     parse_str($query_string, $_GET);
@@ -44,7 +40,6 @@ if (strpos($matched_route, '?') !== false) {
     $controller_file = $matched_route;
 }
 
-// Include and execute controller
 if (file_exists($controller_file)) {
     require_once $controller_file;
 } else {
