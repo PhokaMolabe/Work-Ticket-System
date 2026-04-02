@@ -1,27 +1,23 @@
 <?php
-// Database configuration
+
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'app_db');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
-// Application configuration
 define('APP_URL', 'http://localhost');
 define('SESSION_NAME', 'app_session');
 
-// Security
+
 define('CSRF_TOKEN_NAME', 'csrf_token');
 define('BCRYPT_COST', 12);
 
-// Error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Start session
 session_name(SESSION_NAME);
 session_start();
 
-// Database connection
 function getDB() {
     static $pdo = null;
     if ($pdo === null) {
@@ -43,7 +39,6 @@ function getDB() {
     return $pdo;
 }
 
-// CSRF Protection
 function generateCSRFToken() {
     if (empty($_SESSION[CSRF_TOKEN_NAME])) {
         $_SESSION[CSRF_TOKEN_NAME] = bin2hex(random_bytes(32));
@@ -57,7 +52,6 @@ function validateCSRFToken($token) {
     }
 }
 
-// Authentication helpers
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
@@ -95,7 +89,6 @@ function logout() {
     session_start();
 }
 
-// Permission system
 function hasPermission($required_permission, $resource_data = null) {
     $user = getCurrentUser();
     if (!$user) {
@@ -104,25 +97,21 @@ function hasPermission($required_permission, $resource_data = null) {
     
     switch ($required_permission) {
         case 'plan_edit':
-            // SuperAdmin and Admin can edit any plan
             if (in_array($user['user_type'], ['SuperAdmin', 'Admin'])) {
                 return true;
             }
             
-            // Agent and Sales can only edit enabled plans
             if (isset($resource_data['plan_enabled']) && !$resource_data['plan_enabled']) {
                 return false;
             }
             
-            // Sales must be restricted by ownership/tree
             if ($user['user_type'] === 'Sales') {
                 if (isset($resource_data['customer_id'])) {
-                    // Check if customer belongs to sales user's tree
+    
                     return isCustomerInSalesTree($user['id'], $resource_data['customer_id']);
                 }
             }
-            
-            // Agent can edit enabled plans
+        
             if ($user['user_type'] === 'Agent') {
                 return true;
             }
@@ -130,17 +119,14 @@ function hasPermission($required_permission, $resource_data = null) {
             return false;
             
         case 'user_edit':
-            // SuperAdmin and Admin can edit any user
             if (in_array($user['user_type'], ['SuperAdmin', 'Admin'])) {
                 return true;
             }
-            
-            // Agent can edit users under their tree
+         
             if ($user['user_type'] === 'Agent' && isset($resource_data['target_user_id'])) {
                 return isUserInAgentTree($user['id'], $resource_data['target_user_id']);
             }
             
-            // Sales can only edit themselves
             if ($user['user_type'] === 'Sales' && isset($resource_data['target_user_id'])) {
                 return $user['id'] == $resource_data['target_user_id'];
             }
@@ -155,7 +141,6 @@ function hasPermission($required_permission, $resource_data = null) {
 function isCustomerInSalesTree($sales_id, $customer_id) {
     $pdo = getDB();
     
-    // Get the sales user's agent
     $stmt = $pdo->prepare("SELECT root FROM tbl_users WHERE id = ?");
     $stmt->execute([$sales_id]);
     $sales_user = $stmt->fetch();
@@ -164,7 +149,7 @@ function isCustomerInSalesTree($sales_id, $customer_id) {
         return false;
     }
     
-    // Check if customer belongs to the same agent tree
+
     $stmt = $pdo->prepare("SELECT id FROM tbl_users WHERE id = ? AND (root = ? OR id = ?)");
     $stmt->execute([$customer_id, $sales_user['root'], $sales_user['root']]);
     return $stmt->fetch() !== false;
@@ -173,7 +158,6 @@ function isCustomerInSalesTree($sales_id, $customer_id) {
 function isUserInAgentTree($agent_id, $target_user_id) {
     $pdo = getDB();
     
-    // Check if target user has this agent as root or is the agent themselves
     $stmt = $pdo->prepare("SELECT id FROM tbl_users WHERE id = ? AND (root = ? OR id = ?)");
     $stmt->execute([$target_user_id, $agent_id, $agent_id]);
     return $stmt->fetch() !== false;
@@ -185,7 +169,6 @@ function requirePermission($required_permission, $resource_data = null) {
     }
 }
 
-// Input validation
 function sanitizeInput($data) {
     return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
 }
